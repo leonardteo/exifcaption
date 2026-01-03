@@ -15,6 +15,10 @@ for f in "$@"; do
   echo "$f"
 
 exiftool -api requestall -n -s3 -p '📸 ${Model} + ${LensModel}
-${FocalLength;$_ =~ s/ mm$//; $_ = sprintf("%.0fmm", $_)} ${ShutterSpeed}s f/$Aperture ISO${ISO}${ExposureCompensation; $_ = (defined($_) && abs($_) >= 0.05) ? sprintf(" %+.1fEV", $_) : ""; s/\.0EV$/EV/;}' "$f"
+${FocalLength;$_ =~ s/ mm$//; $_ = sprintf("%.0fmm", $_)} ${ShutterSpeed;
+  my $t = $_;
+  if (defined($t) && $t > 0 && $t < 1) { $_ = "1/" . int(0.5 + 1/$t) }
+  else { $_ = sprintf("%.1f", $t); s/\.0$//; }
+}s f/$Aperture ISO${ISO}${ExposureCompensation; $_ = (defined($_) && abs($_) >= 0.05) ? sprintf(" %+.1fEV", $_) : ""; s/\.0EV$/EV/;}' "$f"
 
 done | tee /dev/stderr | pbcopy
