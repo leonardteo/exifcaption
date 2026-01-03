@@ -14,13 +14,7 @@ for f in "$@"; do
   echo
   echo "$f"
 
-  # Build a caption using real focal length (not 35mm equiv)
-  # LensModel Most cameras Best choice (text label)
-  # LensID When LensModel missing ExifTool maps numeric IDs → names
-  # Lens Last resort composite When all else fails
-  # LensInfo  Always available Specs only, not names
-
-  exiftool -api requestall -s3 -p '📸 ${Model} + ${LensModel}
-${FocalLength;$_ =~ s/ mm$//; $_ = sprintf("%.0fmm", $_)} ${ShutterSpeed}s f/$Aperture ISO${ISO}' "$f"
+exiftool -api requestall -n -s3 -p '📸 ${Model} + ${LensModel}
+${FocalLength;$_ =~ s/ mm$//; $_ = sprintf("%.0fmm", $_)} ${ShutterSpeed}s f/$Aperture ISO${ISO}${ExposureCompensation; $_ = (defined($_) && abs($_) >= 0.05) ? sprintf(" %+.1fEV", $_) : ""; s/\.0EV$/EV/;}' "$f"
 
 done | tee /dev/stderr | pbcopy
